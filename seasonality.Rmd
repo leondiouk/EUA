@@ -1,0 +1,190 @@
+---
+title: "EUA Historical Seasonality"
+author: "Leon Ntioukas"
+date: "19/10/2020"
+output: html_document
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(tidyquant) # Used for FANG dataset
+library(timetk)
+library(readr)
+library(modeltime)
+library(lubridate)
+library(plotly)
+library(ggpmisc)
+library(dplyr)
+library(magrittr)
+library(knitr)
+library(packrat)
+library(rsconnect)
+
+```
+
+```{r include=FALSE}
+
+### Import
+EUA_Futures_2014_2020 <- read_csv("~/Personal/EUAs/Carbon_Emissions_Futures_2014_2020 .csv")
+EUA_Futures_2010_2020_Monthly_ <- read_csv("~/Personal/EUAs/Carbon_Emissions_Futures_2010_2020_Monthly .csv")
+
+
+```
+
+```{r include=FALSE}
+
+## Daily-----
+
+names(EUA_Futures_2014_2020)
+new_names <- c("Date","Close","Open","High","Low","Volume","Percentage_Change")
+names(EUA_Futures_2014_2020) <- new_names
+names(EUA_Futures_2014_2020)
+
+## Making Date as datetime object instead of character
+EUA_Futures_2014_2020$Date <- str_remove(EUA_Futures_2014_2020$Date, pattern = ",") %>% parse_date_time(orders = "mdy")
+
+## Making Volume an integer
+EUA_Futures_2014_2020$Volume <- str_remove(EUA_Futures_2014_2020$Volume, pattern = "[K-]") %>% as.double() *1000
+
+## Renaming / dropping the column with percentage difference between D / D-1
+EUA_Futures_2014_2020$Price_Diff <- str_remove(EUA_Futures_2014_2020$Percentage_Change, pattern = "%") %>% as.double()
+EUA_Futures_2014_2020 <- EUA_Futures_2014_2020 %>% select(-7)
+
+
+glimpse(EUA_Futures_2014_2020)
+
+
+```
+
+```{r include=FALSE}
+## Monthly ----
+
+names(EUA_Futures_2010_2020_Monthly_)
+new_names <- c("Date","Close","Open","High","Low","Volume","Percentage_Change")
+names(EUA_Futures_2010_2020_Monthly_) <- new_names
+names(EUA_Futures_2010_2020_Monthly_)
+
+## Making Date as datetime object instead of character
+EUA_Futures_2010_2020_Monthly_$Date <- EUA_Futures_2010_2020_Monthly_$Date %>% parse_date_time(orders = "my")
+EUA_Futures_2010_2020_Monthly_
+## Making Volume an integer
+EUA_Futures_2010_2020_Monthly_$Volume <- str_remove(EUA_Futures_2010_2020_Monthly_$Volume, pattern = "[K]") %>% as.double() *1000
+
+## Renaming  the column with percentage difference between D / D-1
+EUA_Futures_2010_2020_Monthly_$Percentage_Change <- str_remove(EUA_Futures_2010_2020_Monthly_$Percentage_Change, pattern = "%") %>% as.double()
+
+EUA_Futures_2010_2020_Monthly_ <- EUA_Futures_2010_2020_Monthly_ %>% dplyr::mutate(Year = lubridate::year(Date), 
+                                                                                   Month = lubridate::month(Date))
+
+
+glimpse(EUA_Futures_2010_2020_Monthly_)
+
+
+
+```
+
+
+```{r echo=FALSE}
+## Plots -----
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2010") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2010     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2011") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2011     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2012") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2012     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2013") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2013     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2014") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2014     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2015") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2015     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2016") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2016     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2017") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2017     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2018") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2018     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2019") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2019     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+interactive <- TRUE
+
+EUA_Futures_2010_2020_Monthly_ %>% filter(Year == "2020") %>% 
+  plot_time_series(Date, Close, 
+                   .interactive = interactive, 
+                   .plotly_slider = TRUE, .title = "EUA Monthly Closing Price in 2020     
+                   (Blue Line = Approximate Trend)",
+                   .legend_show = TRUE)
+
+```
+
